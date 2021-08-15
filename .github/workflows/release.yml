@@ -18,6 +18,10 @@ jobs:
   goreleaser:
     runs-on: ubuntu-latest
     steps:
+      - name: Install qemu-kvm
+        run: |
+         sudo apt-get install qemu-kvm
+         sudo ln -s /usr/bin/kvm /usr/libexec/qemu-kvm
       - name: Checkout
         uses: actions/checkout@v2
       - name: Unshallow
@@ -34,7 +38,6 @@ jobs:
         uses: hashicorp/ghaction-import-gpg@v2.1.0
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          PASSPHRASE: ${{ secrets.PASSPHRASE }}
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:

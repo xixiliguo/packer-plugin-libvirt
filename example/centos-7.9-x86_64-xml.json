@@ -1,0 +1,39 @@
+{
+    "builders": [
+      {
+        "type": "libvirt",
+        "cpus": 1,
+        "memory": "1024",
+        "vnc_bind_address": "0.0.0.0",
+        "iso_url": "CentOS-7-x86_64-Minimal-2009.iso",
+        "iso_checksum": "sha256:07b94e6b1a0b0260b94c83d6bb76b26bf7a310dc78d7a9c7432809fb9bc6194a",
+        "output_directory": "output",
+        "shutdown_command": "shutdown -P now",
+        "disk_size": "5G",
+        "format": "qcow2",
+        "hypervisor": "kvm",
+        "http_directory": "http",
+        "ssh_username": "root",
+        "xml_file":  "centos-7.9-x86_64-bios.xml",
+        "ssh_password": "test_libvirt",
+        "ssh_timeout": "200m",
+        "vm_name": "test_xml_x86_64_{{ user `build_timestamp` }}.qcow2",
+        "net_device": "virtio-net",
+        "disk_interface": "virtio",
+        "boot_wait": "10s",
+        "boot_command": [
+          "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos7-ks.cfg<enter><wait>"
+        ]
+      }
+    ],
+    "provisioners": [
+      {
+        "type": "shell",
+        "inline_shebang": "/bin/bash -eux",
+        "inline": ["sleep 100"]
+      }
+    ],
+    "variables": {
+      "build_timestamp": "{{isotime \"2019102650405\"}}"
+    }
+  }

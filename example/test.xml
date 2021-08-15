@@ -1,0 +1,1 @@
+test_aarch64_{{ user `build_timestamp` }}.qcow2

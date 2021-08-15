@@ -1,0 +1,72 @@
+<domain type='kvm'>
+	<name>{{.VMName}}</name>
+	<vcpu>1</vcpu>
+	<memory unit='MiB'>1024</memory>
+	<os>
+		<type arch='x86_64' machine='pc'>hvm</type>
+		<boot dev='hd'/>
+		<boot dev='cdrom'/>
+	</os>
+	<features>
+		<acpi/>
+		<apic/>
+	</features>
+	<cpu mode='host-passthrough'>
+	</cpu>
+	<clock offset='utc'>
+	</clock>
+	<on_poweroff>destroy</on_poweroff>
+	<on_reboot>restart</on_reboot>
+	<on_crash>destroy</on_crash>
+	<devices>
+	<emulator>/usr/libexec/qemu-kvm</emulator>
+	{{range .Disks}}
+	<disk type='file' device='disk'>
+		<driver name='qemu' type='{{.Format}}' cache='{{.DiskCache}}' discard='{{.DiskDiscard}}' {{if ne .DetectZeroes "off"}}detect_zeroes='{{.DetectZeroes}}'{{end}}/>
+		<source file='{{.Source}}'/>
+		<target dev='{{.Dev}}' bus='{{.DiskInterface}}'/>
+	</disk>
+	{{end}}
+	{{if .Cdrom}}
+	<disk type='file' device='cdrom'>
+		<driver name='qemu' type='raw'/>
+		<source file='{{.Cdrom.Source}}'/>
+		<target dev='sdd'/>
+		<readonly/>
+	</disk>
+	{{end}}
+	<controller type='usb' index='0' model='ehci'>
+		<address type='pci' domain='0x0000' bus='0x02' slot='0x01' function='0x0'/>
+	</controller>
+	<controller type='scsi' index='0' model='virtio-scsi'>
+		<address type='pci' domain='0x0000' bus='0x02' slot='0x02' function='0x0'/>
+	</controller>
+	<interface type='network'>
+		<source network='default'/>
+		<model type='virtio-net'/>
+	</interface>
+	<serial type='pty'>
+		<source path='/dev/pts/0'/>
+		<target type='isa-serial' port='0'/>
+	</serial>
+	<console type='pty' tty='/dev/pts/0'>
+		<source path='/dev/pts/0'/>
+		<target type='serial' port='0'/>
+	</console>
+	<input type='tablet'>
+		<alias name='input0'/>
+	</input>
+	<input type='keyboard'>
+		<alias name='input1'/>
+	</input>
+	<graphics type='vnc' port='{{.VncPort}}'>
+		<listen type='address' address='{{.VncIP}}'/>
+	</graphics>
+	<video>
+		<model type='cirrus' primary='yes'/>
+	</video>
+	<memballoon model='virtio'>
+		<address type='pci' domain='0x0000' bus='0x00' slot='0x08' function='0x0'/>
+	</memballoon>
+	</devices>	
+</domain>

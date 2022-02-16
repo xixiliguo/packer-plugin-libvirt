@@ -36,6 +36,12 @@ var diskInterface = map[string]bool{
 	"virtio-scsi": true,
 }
 
+var cdromInterface = map[string]bool{
+	"ide":    true,
+	"scsi":   true,
+	"virtio": true,
+}
+
 var diskInterfaceToDev = map[string]string{
 	"ide":         "hd",
 	"scsi":        "sd",
@@ -258,9 +264,8 @@ type Config struct {
 	// used unless it is specified in this option.
 	VMName string `mapstructure:"vm_name" required:"false"`
 	// The interface to use for the CDROM device which contains the ISO image.
-	// Allowed values include any of `ide`, `scsi`, `virtio` or
-	// `virtio-scsi`. The Qemu builder uses `virtio` by default.
-	// Some ARM64 images require `virtio-scsi`.
+	// Allowed values include any of `ide`, `scsi`, `virtio`.
+	// The Libvirt builder uses `scsi` by default.
 	CDROMInterface string `mapstructure:"cdrom_interface" required:"false"`
 
 	ctx interpolate.Context
@@ -409,6 +414,10 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 		c.DiskInterface = "virtio"
 	}
 
+	if c.CDROMInterface == "" {
+		c.CDROMInterface = "scsi"
+	}
+
 	if c.ISOSkipCache {
 		c.ISOChecksum = "none"
 	}
@@ -468,6 +477,11 @@ func (c *Config) Prepare(raws ...interface{}) ([]string, error) {
 	if _, ok := diskDZeroes[c.DetectZeroes]; !ok {
 		errs = packersdk.MultiErrorAppend(
 			errs, errors.New("unrecognized disk detect zeroes setting"))
+	}
+
+	if _, ok := cdromInterface[c.CDROMInterface]; !ok {
+		errs = packersdk.MultiErrorAppend(
+			errs, errors.New("unrecognized cdrom interface type"))
 	}
 
 	if !c.PackerForce {

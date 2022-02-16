@@ -70,7 +70,7 @@ var XmlTemplate string = `<domain type='{{.Hypervisor}}'>
 	<disk type='file' device='cdrom'>
 		<driver name='qemu' type='raw'/>
 		<source file='{{.Cdrom.Source}}'/>
-		<target dev='sdd'/>
+		<target dev='sdd' bus='{{.Cdrom.Interface}}'/>
 		<readonly/>
 	</disk>
 	{{end}}
@@ -151,8 +151,9 @@ type Disk struct {
 }
 
 type Cdrom struct {
-	Format string
-	Source string
+	Format    string
+	Source    string
+	Interface string
 }
 
 func (s *stepRun) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
@@ -269,7 +270,7 @@ func (s *stepRun) getXMLDesc(state multistep.StateBag) (string, error) {
 		Emulator:    config.EmulatorBinary,
 		DiskImage:   config.DiskImage,
 		Disks:       disks,
-		Cdrom:       Cdrom{Source: isoPath},
+		Cdrom:       Cdrom{Source: isoPath, Interface: config.CDROMInterface},
 		FloppyPath:  floppyPath,
 		NetName:     netName,
 		NetDevice:   config.NetDevice,

@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/packer-plugin-sdk v0.3.0
 	github.com/mitchellh/go-vnc v0.0.0-20150629162542-723ed9867aed
 	github.com/stretchr/testify v1.7.2
-	github.com/zclconf/go-cty v1.10.0
+	github.com/zclconf/go-cty v1.11.0
 )
 
 require (
